@@ -17,6 +17,7 @@ Vagrant.configure(2) do |config|
 
 	config.vm.define "nginx" do |nginx|
         nginx.vm.box = "ubuntu/trusty64"
+		
 			config.vm.provider "virtualbox" do |v|
 				v.cpus = 2
 				v.memory = 2048

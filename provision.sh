@@ -1,8 +1,8 @@
 
-set -eux
+
 ######## Getting Ubuntu updates ########
 
-sudo apt-get upgrade -y
+#sudo apt-get upgrade -y
 sudo apt-get update -y
 
 ############## BEGIN INSTALLATION OF OPENLDAP AND PHPLDAPADMIN #########
@@ -366,16 +366,15 @@ class VSG < Oxidized::Model
 end
 MODEL
 
-cat << DB | sudo -u oxidized tee -a /etc/oxidized/.config/oxidized/router.db
+cat << REFERENCES | sudo -u oxidized tee -a /etc/oxidized/.config/oxidized/router.db
 VSG-1:vsg:UAT:oxidized:test:enable
 VSG-2:vsg:UAT:oxidized:test:enable
 VSG-4:vsg:PRD:oxidized:test:enable
 VSG-5:vsg:PRD:oxidized:test:enable
 
-DB
+REFERENCES
 
-
-sudo cp /vagrant/service.txt /etc/init.d/oxidized
+sudo cp /vagrant/service.sh /etc/init.d/oxidized
 sudo chmod +x /etc/init.d/oxidized
 sudo update-rc.d oxidized defaults
 sudo service oxidized start
