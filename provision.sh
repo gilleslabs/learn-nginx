@@ -1,8 +1,9 @@
 
 set -eux
 ######## Getting Ubuntu updates ########
-sudo apt-get update -y
 
+sudo apt-get upgrade -y
+sudo apt-get update -y
 
 ############## BEGIN INSTALLATION OF OPENLDAP AND PHPLDAPADMIN #########
 
@@ -141,27 +142,27 @@ sudo rm /etc/apache2/sites-enabled/000-default.conf
 sudo service apache2 restart
 
 ########### BUILDING AND INSTALLING NGINX+LDAP AUTH FROM SOURCE #########
-
-cd /tmp
-wget http://nginx.org/download/nginx-1.10.2.tar.gz
 sudo apt-get install git-core -y
-sudo git clone https://github.com/kvspb/nginx-auth-ldap.git
-#git pull
 sudo apt-get install build-essential -y
 sudo apt-get install libldap2-dev -y
 sudo apt-get install libssl-dev -y
 sudo apt-get install libpcre3-dev -y
-sudo tar -xvzf /tmp/nginx-1.10.2.tar.gz
-cd /tmp/nginx-1.10.2
-chmod +x /tmp/nginx-1.10.2/configure
-/tmp/nginx-1.10.2/configure --user=nginx --group=nginx --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx --conf-path=/etc/nginx/nginx.conf --pid-path=/var/run/nginx.pid --lock-path=/var/run/nginx.lock --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --with-http_gzip_static_module --with-http_stub_status_module --with-http_ssl_module --with-pcre --with-file-aio --with-http_realip_module --add-module=/tmp/nginx-auth-ldap/ --with-ipv6 --with-debug
 
-make
+sudo useradd nginx
+cd /tmp && sudo wget http://nginx.org/download/nginx-1.10.2.tar.gz
+cd /tmp && sudo git clone https://github.com/kvspb/nginx-auth-ldap.git
+cd /tmp && sudo tar -xvzf nginx-1.10.2.tar.gz
+cd /tmp/nginx-1.10.2 && chmod +x /tmp/nginx-1.10.2/configure
+cd /tmp/nginx-1.10.2 && sudo ./configure --user=nginx --group=nginx --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx --conf-path=/etc/nginx/nginx.conf --pid-path=/var/run/nginx.pid --lock-path=/var/run/nginx.lock --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --with-http_gzip_static_module --with-http_stub_status_module --with-http_ssl_module --with-pcre --with-file-aio --with-http_realip_module --add-module=/tmp/nginx-auth-ldap/ --with-ipv6 --with-debug
+
+cd /tmp/nginx-1.10.2 && sudo make
+
 cd /tmp/nginx-1.10.2 && sudo make install
+
 sudo wget https://raw.githubusercontent.com/calvinbui/nginx-init-ubuntu/master/nginx -O /etc/init.d/nginx
 sudo chmod +x /etc/init.d/nginx
 sudo update-rc.d -f nginx defaults
-sudo useradd nginx
+
 
 ####### ENABLIC BASIC AUTH FOR NGINX ############
 

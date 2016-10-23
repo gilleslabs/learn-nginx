@@ -22,7 +22,6 @@ Vagrant.configure(2) do |config|
 				v.memory = 2048
 			end
         nginx.vm.network "private_network", ip: "192.168.99.60"
-		nginx.vm.network "forwarded_port", guest: 80, host: 8080
 		nginx.vm.provision :shell, path: "provision.sh"
     end
 end
