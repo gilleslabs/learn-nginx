@@ -375,6 +375,7 @@ VSG-5:vsg:PRD:oxidized:test:enable
 REFERENCES
 
 sudo cp /vagrant/service.sh /etc/init.d/oxidized
+
 sudo chmod +x /etc/init.d/oxidized
 sudo update-rc.d oxidized defaults
 sudo service oxidized start
