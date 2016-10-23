@@ -166,7 +166,7 @@ sudo update-rc.d -f nginx defaults
 
 ####### ENABLIC BASIC AUTH FOR NGINX ############
 
-sudo apt-get install apache2-utils
+sudo apt-get install apache2-utils -y
 sudo htpasswd -bc /etc/nginx/.htpasswd admin password
 sudo mkdir /etc/nginx/sites-available/
 sudo mkdir /etc/nginx/sites-enabled
