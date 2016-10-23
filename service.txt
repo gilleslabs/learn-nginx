@@ -32,7 +32,7 @@ fi
 
 PIDFILE=/var/run/$NAME.pid
 
-
+CONFIG="${CONFIG:-/etc/oxidized/.config/oxidized/config}"
 
 do_start()
 {

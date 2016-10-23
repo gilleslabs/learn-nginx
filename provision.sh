@@ -174,7 +174,7 @@ sudo mkdir /etc/nginx/sites-enabled
 
 ######### ENABLING PHPLDAPADMIN VIA NGINX ############
 
- cat << EOF | sudo tee -a /etc/nginx/sites-available/phpldapadmin
+cat << EOF | sudo tee -a /etc/nginx/sites-available/phpldapadmin
 server {
         listen 8080;
         listen [::]:8080;
@@ -212,8 +212,6 @@ sudo apt-get update -y
 sudo apt-get install ruby2.3 ruby2.3-dev libsqlite3-dev libssl-dev pkg-config cmake libssh2-1-dev -y
 sudo gem install oxidized
 sudo gem install oxidized-script oxidized-web
-
-
 
 cat << DEFAULTFILE |sudo tee -a /etc/nginx/sites-available/oxidized
 server {
