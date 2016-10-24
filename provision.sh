@@ -59,7 +59,49 @@ objectClass: organizationalUnit
 ou: people
 EOF
 
-##### Populating LDAP #########
+##### Enabling memberOf overlay ######
+
+cat<< MEMBEROF | sudo tee -a /tmp/memberof
+dn: cn=module,cn=config
+cn: module
+objectclass: olcModuleList
+objectclass: top
+olcmoduleload: memberof.la
+olcmodulepath: /usr/lib/ldap
+
+dn: olcOverlay={0}memberof,olcDatabase={1}hdb,cn=config
+objectClass: olcConfig
+objectClass: olcMemberOf
+objectClass: olcOverlayConfig
+objectClass: top
+olcOverlay: memberof
+MEMBEROF
+
+cat << REFINT1 | sudo tee -a /tmp/refint1
+dn: cn=module,cn=config
+cn: module
+objectclass: olcModuleList
+objectclass: top
+olcmoduleload: refint.la
+olcmodulepath: /usr/lib/ldap
+
+dn: olcOverlay={1}refint,olcDatabase={1}hdb,cn=config
+objectClass: olcConfig
+objectClass: olcOverlayConfig
+objectClass: olcRefintConfig
+objectClass: top
+olcOverlay: {1}refint
+olcRefintAttribute: memberof member manager owner
+REFINT1
+
+
+sudo ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/memberof
+sudo ldapadd -Y EXTERNAL -H ldapi:/// -f refint1
+
+
+
+
+##### Populating LDAP Users #########
 
 cat << USERS | sudo tee -a /tmp/setup
 dn: cn=gtosi,ou=people,dc=example,dc=com
@@ -214,6 +256,18 @@ sudo gem install oxidized
 sudo gem install oxidized-script oxidized-web
 
 cat << DEFAULTFILE |sudo tee -a /etc/nginx/sites-available/oxidized
+
+
+ldap_server adds {
+    url "ldap://127.0.0.1/dc=example,dc=com?cn?sub?(objectClass=*)";
+    binddn "cn=admin,dc=example,dc=com";
+    binddn_passwd "password";
+    group_attribute memberOf
+    group_attribute_is_dn on;
+    require group "cn=fr-team,ou=groups,dc=example,dc=com";
+    require valid_user
+    satisfy any;
+}
 server {
         listen 80;
         listen [::]:80;
@@ -222,8 +276,9 @@ server {
 
         location / {
                 proxy_pass http://127.0.0.1:8888/;
- auth_basic "Restricted";
-    auth_basic_user_file /etc/nginx/.htpasswd;
+ auth_ldap "Restricted";
+ auth_ldap_servers adds;
+
 }
 
          location /migration
