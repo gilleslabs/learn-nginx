@@ -110,7 +110,7 @@ cn: Gilles Tosi
 sn: TOSI
 userpassword: password
 
-dn: cn=admin,ou=people,dc=example,dc=com
+dn: cn=jane,ou=people,dc=example,dc=com
 Objectclass: inetOrgPerson
 cn: Administrators
 sn: Support
@@ -137,7 +137,7 @@ description: IT Super Admin Group
 # add the group members all of which are 
 # assumed to exist under people
 member: cn=gtosi,ou=people,dc=example,dc=com
-member: cn=admin,ou=people,dc=example,dc=com
+member: cn=jane,ou=people,dc=example,dc=com
 
 # create the fr-team entry
 
@@ -156,9 +156,9 @@ objectclass: groupofnames
 cn: global-team
 description: Gobal Team Group
 # add the group members all of which are 
-# assumed to exist under groups
+# assumed to exist under people
 member: cn=gtosi,ou=people,dc=example,dc=com
-member: cn=admin,ou=people,dc=example,dc=com
+member: cn=jane,ou=people,dc=example,dc=com
 member: cn=jdoe,ou=people,dc=example,dc=com
 
 USERS
@@ -259,15 +259,27 @@ sudo gem install oxidized-script oxidized-web
 cat << DEFAULTFILE |sudo tee -a /etc/nginx/sites-available/oxidized
 auth_ldap_cache_enabled off;
 
-ldap_server adds {
+ldap_server loc_root {
     url "ldap://127.0.0.1/dc=example,dc=com?cn?sub?";
     binddn "cn=admin,dc=example,dc=com";
     binddn_passwd "password";
     group_attribute member;
     group_attribute_is_dn on;
     require group "cn=global-team,ou=groups,dc=example,dc=com";
-    
+
 }
+
+ldap_server loc_uat {
+    url "ldap://127.0.0.1/dc=example,dc=com?cn?sub?";
+    binddn "cn=admin,dc=example,dc=com";
+    binddn_passwd "password";
+    group_attribute member;
+    group_attribute_is_dn on;
+    require group "cn=fr-team,ou=groups,dc=example,dc=com";
+
+}
+
+
 server {
         listen 80;
         listen [::]:80;
@@ -275,11 +287,20 @@ server {
         server_name gss-oxidized.com;
 
         location / {
-                proxy_pass http://127.0.0.1:8888/;
+
+
+                proxy_pass http://127.0.0.1:8888;
  auth_ldap "Restricted";
- auth_ldap_servers adds;
+ auth_ldap_servers loc_root;
 
 }
+
+location   ~* UAT {
+               proxy_pass http://127.0.0.1:8888;
+ auth_ldap "Restricted";
+ auth_ldap_servers loc_uat;
+}
+
 
          location /migration
                  { return 403;}
