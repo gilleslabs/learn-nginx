@@ -149,7 +149,7 @@ description: French Group
 # assumed to exist under people
 member: cn=jdoe,ou=people,dc=example,dc=com
 
-# create the fr-team entry
+# create the global-team entry
 
 dn: cn=global-team,ou=groups,dc=example,dc=com
 objectclass: groupofnames
@@ -157,8 +157,9 @@ cn: global-team
 description: Gobal Team Group
 # add the group members all of which are 
 # assumed to exist under groups
-member: cn=fr-team,ou=groups,dc=example,dc=com
-member: cn=superadmin,ou=groups,dc=example,dc=com
+member: cn=gtosi,ou=people,dc=example,dc=com
+member: cn=admin,ou=people,dc=example,dc=com
+member: cn=jdoe,ou=people,dc=example,dc=com
 
 USERS
 
@@ -256,17 +257,16 @@ sudo gem install oxidized
 sudo gem install oxidized-script oxidized-web
 
 cat << DEFAULTFILE |sudo tee -a /etc/nginx/sites-available/oxidized
-
+auth_ldap_cache_enabled off;
 
 ldap_server adds {
-    url "ldap://127.0.0.1/dc=example,dc=com?cn?sub?(objectClass=*)";
+    url "ldap://127.0.0.1/dc=example,dc=com?cn?sub?";
     binddn "cn=admin,dc=example,dc=com";
     binddn_passwd "password";
-    group_attribute memberOf
+    group_attribute member;
     group_attribute_is_dn on;
-    require group "cn=fr-team,ou=groups,dc=example,dc=com";
-    require valid_user
-    satisfy any;
+    require group "cn=global-team,ou=groups,dc=example,dc=com";
+    
 }
 server {
         listen 80;
